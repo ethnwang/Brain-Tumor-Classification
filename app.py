@@ -179,6 +179,73 @@ if uploaded_file is not None:
     with col2:
         st.image(saliency_map, caption="Saliency Map", use_column_width=True)
 
+    st.write("## Classification Results")
+
+    result_container = st.container()
+    result_container = st.container()
+    result_container.markdown(
+        f"""
+        <div style="background-color: #000000; color: #ffffff; padding: 30px; border-radius: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1; text-align: center;">
+                    <h3 style="color: #ffffff; margin-bottom: 10px; font-size: 20px;">Prediction</h3>
+                    <p style="font-size: 36px; font-weight: 800; color: #FF0000; margin: 0;">
+                        {result}
+                    </p>
+                </div>
+                <div style="width: 2px; height: 80px; background-color: #ffffff; margin: 0 20px;"></div>
+                <div style="flex: 1; text-align: center;">
+                    <h3 style="color: #ffffff; margin-bottom: 10px; font-size: 20px;">Confidence</h3>
+                    <p style="font-size: 36px; font-weight: 800; color: #2196F3; margin: 0;">
+                        {prediction[0][class_index]:.4%}
+                    </p>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Prepare data for Plotly chart
+    probabilities = prediction[0]
+    sorted_indices = np.argsort(probabilities)[::-1]
+    sorted_labels = [labels[i] for i in sorted_indices]
+    sorted_probabilities = probabilities[sorted_indices]
+
+    # Create a Plotly bar chart
+    fig = go.Figure(go.Bar(
+        x=sorted_probabilities,
+        y=sorted_labels,
+        orientation='h',
+        marker_color=['red' if label == result else 'blue' for label in sorted_labels]
+    ))
+
+    # Customize the chart layout
+    fig.update_layout(
+        title="Probabilities for each class",
+        xaxis_title="Probability",
+        yaxis_title="Class",
+        height=400,
+        width=600,
+        yaxis=dict(autorange="reversed")
+    )
+
+    # Add value labels to the bars
+    for i, prob in enumerate(sorted_probabilities):
+        fig.add_annotation(
+            x=prob,
+            y=i,
+            text=f'{prob:.4f}',
+            showarrow=False,
+            xanchor='left',
+            xshift=5
+        )
+
+    # Display the Plotly chart
+    st.plotly_chart(fig)
+
+
+
     saliency_map_path = f'saliency_maps/{uploaded_file.name}'
     explanation = generate_explanation(saliency_map_path, result, prediction[0][class_index])
 

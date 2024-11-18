@@ -1,4 +1,3 @@
-
 import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.models import load_model
@@ -134,7 +133,7 @@ def load_xception_model(model_path):
                 metrics=['accuracy',
                          Precision(),
                          Recall()])
-  
+
   model.load_weights(model_path)
   return model
 
@@ -145,7 +144,7 @@ st.write("Upload an image of a brain MRI scan to classify.")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    
+
     selected_model = st.radio("Select a model:", ("Transfer Learning - Xception", "Custom CNN"))
 
     if selected_model == "Transfer Learning - Xception":
@@ -162,7 +161,7 @@ if uploaded_file is not None:
     img_array /= 255.0
 
     prediction = model.predict(img_array)
-    
+
     class_index = np.argmax(prediction[0])
     result = labels[class_index]
 
@@ -175,9 +174,9 @@ if uploaded_file is not None:
 
     col1, col2 = st.columns(2)
     with col1:
-        st.image(img, caption="Uploaded Image", use_column_width=True)
+        st.image(img, caption="Uploaded Image", use_container_width=True)
     with col2:
-        st.image(saliency_map, caption="Saliency Map", use_column_width=True)
+        st.image(saliency_map, caption="Saliency Map", use_container_width=True)
 
     st.write("## Classification Results")
 
@@ -251,4 +250,3 @@ if uploaded_file is not None:
 
     st.write('##Explanation')
     st.write(explanation)
-    
